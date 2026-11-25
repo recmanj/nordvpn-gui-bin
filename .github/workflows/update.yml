@@ -12,95 +12,12 @@ concurrency:
   group: update
   cancel-in-progress: false
 
-# validate is the only job that runs the new release, and it gets a read-only
-# token. publish never runs it: it starts from a fresh checkout and recreates
-# PKGBUILD and .SRCINFO from the signed repo metadata. Both pin the checksums
-# that check saw, so publish cannot pick up a release that was not validated.
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    container: archlinux:base-devel
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      version: ${{ steps.check.outputs.version }}
-      sums: ${{ steps.check.outputs.sums }}
-    steps:
-      - name: Install tools
-        run: |
-          pacman -Syu --noconfirm --needed git github-cli
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Check for a new release
-        id: check
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/check-update.sh
-
-  validate:
-    needs: check
-    if: needs.check.outputs.version != ''
-    runs-on: ubuntu-latest
-    container: archlinux:base-devel
-    timeout-minutes: 45
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Update PKGBUILD and .SRCINFO
-        env:
-          VERSION: ${{ needs.check.outputs.version }}
-          SUMS: ${{ needs.check.outputs.sums }}
-        run: .github/scripts/bump.sh "$VERSION" "$SUMS"
-
-      - name: Validate
-        run: .github/scripts/validate.sh
-
-  publish:
-    needs: [check, validate]
-    runs-on: ubuntu-latest
-    container: archlinux:base-devel
-    timeout-minutes: 15
+  update:
+    uses: recmanj/github-workflows/.github/workflows/arch-update.yml@7f7d29840daa25e53e32fbddc115286215f2117a # v2.0.0
     permissions:
       contents: write
       pull-requests: write
       actions: write
-    steps:
-      - name: Install tools
-        run: |
-          pacman -Syu --noconfirm --needed git github-cli
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Update PKGBUILD and .SRCINFO
-        env:
-          VERSION: ${{ needs.check.outputs.version }}
-          SUMS: ${{ needs.check.outputs.sums }}
-        run: .github/scripts/bump.sh "$VERSION" "$SUMS"
-
-      - name: Open pull request
-        env:
-          GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ needs.check.outputs.version }}
-        run: |
-          branch="update/$VERSION"
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git switch -c "$branch"
-          git add PKGBUILD .SRCINFO
-          git commit -m "Update to $VERSION"
-          git push --force origin "$branch"
-          gh pr create --base main --head "$branch" \
-            --title "Update to $VERSION" \
-            --body "Release notes: https://github.com/NordSecurity/nordvpn-linux/releases/tag/$VERSION"
-          gh workflow run ci.yml --ref "$branch"
+    with:
+      body: 'Release notes: https://github.com/NordSecurity/nordvpn-linux/releases/tag/{version}'
