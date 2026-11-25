@@ -1,0 +1,10 @@
+*
+!.gitignore
+!.SRCINFO
+!README.md
+!PKGBUILD
+!keys/
+!keys/pgp/
+!keys/pgp/*.asc
+!.github/
+!.github/**
