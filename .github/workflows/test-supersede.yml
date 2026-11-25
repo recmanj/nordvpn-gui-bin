@@ -1,0 +1,15 @@
+name: test-supersede
+on:
+  push:
+    branches: [test/sup]
+permissions: {}
+jobs:
+  update:
+    uses: recmanj/github-workflows/.github/workflows/update.yml@a722f483ad9cebe21eb4b3ed32bd5fba34e5e053
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    with:
+      check: echo "0.$GITHUB_RUN_NUMBER"
+      apply: echo "$VERSION" > test-version
