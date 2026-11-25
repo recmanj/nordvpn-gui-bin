@@ -12,8 +12,10 @@ fi
 
 branch="update/$latest"
 # A PR in any state means this version was handled. A branch without a PR is
-# left over from a failed run and gets overwritten.
-if [[ -n $(gh pr list --head "$branch" --state all --json number --jq '.[].number') ]]; then
+# left over from a failed run and gets overwritten. Matching on owner:branch
+# leaves out fork PRs, which anyone can open from a branch with this name.
+if [[ -n $(gh api -X GET 'repos/{owner}/{repo}/pulls' -F head="{owner}:$branch" \
+  -f base=main -f state=all --jq '.[].number') ]]; then
   echo "PR for $branch already exists, skipping"
   exit 0
 fi
