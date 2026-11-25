@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   update:
-    uses: recmanj/github-workflows/.github/workflows/arch-update.yml@7f7d29840daa25e53e32fbddc115286215f2117a # v2.0.0
+    uses: recmanj/github-workflows/.github/workflows/arch-update.yml@3bee6956c08bda0dfebee60f8cc5e61af15912ed
     permissions:
       contents: write
       pull-requests: write

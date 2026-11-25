@@ -2,7 +2,7 @@
 
 pkgname=nordvpn-gui-bin
 _pkgname=nordvpn-gui
-pkgver=6.1.0
+pkgver=1.0
 pkgrel=1
 pkgdesc='NordVPN graphical interface (binary release)'
 arch=(x86_64 aarch64)
