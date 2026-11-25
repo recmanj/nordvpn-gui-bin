@@ -12,11 +12,64 @@ concurrency:
   group: update
   cancel-in-progress: false
 
+# validate is the only job that runs the new release, and it gets a read-only
+# token. publish never runs it: it starts from a fresh checkout and recreates
+# PKGBUILD and .SRCINFO from the signed repo metadata. Both pin the checksums
+# that check saw, so publish cannot pick up a release that was not validated.
 jobs:
-  update:
+  check:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      sums: ${{ steps.check.outputs.sums }}
+    steps:
+      - name: Install tools
+        run: |
+          pacman -Syu --noconfirm --needed git github-cli
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check for a new release
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: .github/scripts/check-update.sh
+
+  validate:
+    needs: check
+    if: needs.check.outputs.version != ''
     runs-on: ubuntu-latest
     container: archlinux:base-devel
     timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Update PKGBUILD and .SRCINFO
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
+          SUMS: ${{ needs.check.outputs.sums }}
+        run: .github/scripts/bump.sh "$VERSION" "$SUMS"
+
+      - name: Validate
+        run: .github/scripts/validate.sh
+
+  publish:
+    needs: [check, validate]
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    timeout-minutes: 15
     permissions:
       contents: write
       pull-requests: write
@@ -29,23 +82,16 @@ jobs:
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Check for a new release
-        id: check
+      - name: Update PKGBUILD and .SRCINFO
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/check-update.sh
-
-      - name: Update .SRCINFO and validate
-        if: steps.check.outputs.version != ''
-        env:
-          UPDATE_SRCINFO: '1'
-        run: .github/scripts/validate.sh
+          VERSION: ${{ needs.check.outputs.version }}
+          SUMS: ${{ needs.check.outputs.sums }}
+        run: .github/scripts/bump.sh "$VERSION" "$SUMS"
 
       - name: Open pull request
-        if: steps.check.outputs.version != ''
         env:
           GH_TOKEN: ${{ github.token }}
-          VERSION: ${{ steps.check.outputs.version }}
+          VERSION: ${{ needs.check.outputs.version }}
         run: |
           branch="update/$VERSION"
           git config user.name 'github-actions[bot]'
