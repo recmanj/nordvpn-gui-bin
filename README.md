@@ -31,3 +31,4 @@ checksums in the PKGBUILD are taken from the repository's `Packages` index,
 which is checked against the `InRelease` file signed with the key in
 [`keys/pgp`](keys/pgp) (`BC5480EFEC5C081CE5BCFBE26B219E535C964CA1`). CI repeats
 this check on every change.
+
