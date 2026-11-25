@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# UPDATE_SRCINFO=1 regenerates .SRCINFO first.
+# Lints, builds, installs and runs the package as root. Only run this in jobs
+# with a read-only token and nothing that later publishes from the workspace.
 set -euo pipefail
 
 pacman -Syu --noconfirm --needed namcap shellcheck
@@ -14,13 +15,7 @@ id builder &>/dev/null || useradd -m builder
 echo 'builder ALL=(root) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/builder
 chown -R builder: .
 
-sudo -u builder UPDATE_SRCINFO="${UPDATE_SRCINFO:-0}" bash -euo pipefail <<'EOF'
-if [[ $UPDATE_SRCINFO == 1 ]]; then
-  echo '::group::Update .SRCINFO'
-  makepkg --printsrcinfo > .SRCINFO
-  echo '::endgroup::'
-fi
-
+sudo -u builder bash -euo pipefail <<'EOF'
 echo '::group::.SRCINFO is up to date'
 diff -u .SRCINFO <(makepkg --printsrcinfo)
 echo '::endgroup::'
