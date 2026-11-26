@@ -1,13 +1,13 @@
 pkgbase = nordvpn-gui-bin
 	pkgdesc = NordVPN graphical interface (binary release)
-	pkgver = 6.1.0
+	pkgver = 6.1.1
 	pkgrel = 1
 	url = https://nordvpn.com/download/linux/
 	arch = x86_64
 	arch = aarch64
 	license = GPL-3.0-only
 	license = LicenseRef-NordVPN
-	depends = nordvpn>=6.1.0
+	depends = nordvpn>=6.1.1
 	depends = at-spi2-core
 	depends = cairo
 	depends = fontconfig
@@ -22,13 +22,13 @@ pkgbase = nordvpn-gui-bin
 	depends = libstdc++
 	depends = libx11
 	depends = pango
-	provides = nordvpn-gui=6.1.0
+	provides = nordvpn-gui=6.1.1
 	conflicts = nordvpn-gui
 	options = !strip
 	options = !debug
-	source_x86_64 = https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn-gui/nordvpn-gui_6.1.0_amd64.deb
-	sha256sums_x86_64 = 0297496e7c1c0ee038796fcb602fc15c50e6ba6d0aea0415273ef7aa38299868
-	source_aarch64 = https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn-gui/nordvpn-gui_6.1.0_arm64.deb
-	sha256sums_aarch64 = 5a205d7e04cd42ed0a0aefd464b4a454604f61ccdbf72c9e255dcafc2d87a308
+	source_x86_64 = https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn-gui/nordvpn-gui_6.1.1_amd64.deb
+	sha256sums_x86_64 = f64ffe37ce483c0f717b8b565825cce2d7e350885c5b8470a0641ae93d25cd01
+	source_aarch64 = https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn-gui/nordvpn-gui_6.1.1_arm64.deb
+	sha256sums_aarch64 = a26f482ff4e0b4b2f71cc7747689ec91d389efc9ae8a82f039ae6b0163f9c101
 
 pkgname = nordvpn-gui-bin
