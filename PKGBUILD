@@ -2,7 +2,7 @@
 
 pkgname=nordvpn-gui-bin
 _pkgname=nordvpn-gui
-pkgver=6.1.0
+pkgver=6.1.1
 pkgrel=1
 pkgdesc='NordVPN graphical interface (binary release)'
 arch=(x86_64 aarch64)
@@ -21,8 +21,8 @@ source_x86_64=("$_pool/${_pkgname}_${pkgver}_amd64.deb")
 source_aarch64=("$_pool/${_pkgname}_${pkgver}_arm64.deb")
 # The deb is not signed; these come from the signed repo metadata,
 # see .github/scripts/upstream.sh
-sha256sums_x86_64=('0297496e7c1c0ee038796fcb602fc15c50e6ba6d0aea0415273ef7aa38299868')
-sha256sums_aarch64=('5a205d7e04cd42ed0a0aefd464b4a454604f61ccdbf72c9e255dcafc2d87a308')
+sha256sums_x86_64=('f64ffe37ce483c0f717b8b565825cce2d7e350885c5b8470a0641ae93d25cd01')
+sha256sums_aarch64=('a26f482ff4e0b4b2f71cc7747689ec91d389efc9ae8a82f039ae6b0163f9c101')
 
 prepare() {
 	rm -rf data
